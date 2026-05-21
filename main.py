@@ -1,5 +1,6 @@
 from __future__ import annotations
-
+from starlette.middleware.wsgi import WSGIMiddleware
+from ai_cp_gamification_flask.app import app as gamification_app
 import sqlite3
 import uuid
 from datetime import datetime
@@ -237,5 +238,5 @@ def export_pdf(request: ExportRequest):
         filename=path.name,
     )
 
-
+app.mount("/gamification", WSGIMiddleware(gamification_app))
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
