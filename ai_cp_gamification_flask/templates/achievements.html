@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Achievements · ProposalAI{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h1>Achievements Gallery</h1>
+      <p class="muted">Открытые и заблокированные достижения сотрудника.</p>
+    </div>
+    <span class="level-badge">{{ state.achievements | selectattr('unlocked', 'equalto', 1) | list | length }} unlocked</span>
+  </div>
+
+  <div class="achievement-grid">
+    {% for achievement in state.achievements %}
+    <article class="achievement {{ 'unlocked' if achievement.unlocked else 'locked' }}">
+      <div class="achievement-icon">{{ achievement.icon }}</div>
+      <h3>{{ achievement.name }}</h3>
+      <p>{{ achievement.description }}</p>
+      {% if achievement.unlocked %}
+      <small>Unlocked: {{ achievement.unlocked_at }}</small>
+      {% else %}
+      <small>Locked</small>
+      {% endif %}
+    </article>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

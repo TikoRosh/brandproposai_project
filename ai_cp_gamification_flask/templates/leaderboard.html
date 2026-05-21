@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Leaderboard · ProposalAI{% endblock %}
+{% block content %}
+<section class="card">
+  <div class="card-header">
+    <div>
+      <h1>Leaderboard</h1>
+      <p class="muted">Рейтинг сотрудников по общему количеству очков.</p>
+    </div>
+    <span class="level-badge">Monthly</span>
+  </div>
+
+  <div class="leaderboard">
+    {% for user in state.leaderboard %}
+    <div class="leader-row {{ 'top' if loop.index <= 3 else '' }}">
+      <div class="rank">#{{ loop.index }}</div>
+      <div>
+        <strong>{{ user.name }}</strong>
+        <p>{{ user.generated_count }} generated · {{ user.approved_count }} approved</p>
+      </div>
+      <div class="leader-points">{{ user.total_points }} pts</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

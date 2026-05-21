@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Employee Dashboard · ProposalAI{% endblock %}
+{% block content %}
+<section class="hero-card">
+  <div>
+    <div class="level-badge">LEVEL {{ state.level.level }} · {{ state.level.title }}</div>
+    <h1>Добро пожаловать, {{ state.employee.name }}</h1>
+    <p>До следующего уровня осталось совсем немного. Генерируйте КП, получайте согласования и открывайте достижения.</p>
+  </div>
+  <button class="primary-cta" data-generate-proposal>🚀 Generate New Commercial Proposal</button>
+</section>
+
+<section class="grid two-one">
+  <div class="stack">
+    <article class="card">
+      <div class="card-header">
+        <h2>Experience</h2>
+        <div class="score">🏅 {{ state.employee.total_points }} pts</div>
+      </div>
+      <div class="progress-row">
+        <span>{{ state.level.title }}</span>
+        <strong>{{ state.level_progress }}%</strong>
+      </div>
+      <div class="progress"><span style="width: {{ state.level_progress }}%"></span></div>
+    </article>
+
+    <article class="card">
+      <h2>System Insights</h2>
+      <div class="metric-grid">
+        <div class="metric"><small>Win Rate</small><strong>68%</strong><span>↑ 4%</span></div>
+        <div class="metric"><small>Generated</small><strong>{{ state.employee.generated_count }}</strong><span>CP total</span></div>
+        <div class="metric"><small>Approved</small><strong>{{ state.employee.approved_count }}</strong><span>CP total</span></div>
+        <div class="metric"><small>Current Streak</small><strong>{{ state.employee.current_streak }}</strong><span>days 🔥</span></div>
+      </div>
+    </article>
+  </div>
+
+  <article class="card activity-card">
+    <div class="card-header">
+      <h2>Recent Activity</h2>
+      <span>🕘</span>
+    </div>
+    <div class="activity-list">
+      {% for item in state.transactions %}
+      <div class="activity-item">
+        <span class="activity-icon">{{ '✅' if item.action_type == 'proposal_approved' else '📄' if item.action_type == 'proposal_generated' else '❌' }}</span>
+        <div>
+          <strong>{{ item.action_type.replace('_', ' ') }}</strong>
+          <p>{{ item.comment }}{% if item.points > 0 %} → +{{ item.points }} pts{% endif %}</p>
+          <small>{{ item.created_at }}</small>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>My Proposals</h2>
+    <a class="text-link" href="{{ url_for('admin_page') }}">Open approval panel</a>
+  </div>
+  <div class="proposal-table">
+    <div class="table-head"><span>ID</span><span>Title</span><span>Company</span><span>Status</span><span>AI</span></div>
+    {% for proposal in state.proposals if proposal.author_id == state.employee.id %}
+    <div class="table-row">
+      <span>#{{ proposal.id }}</span>
+      <span>{{ proposal.title }}</span>
+      <span>{{ proposal.company }}</span>
+      <span class="status {{ proposal.status }}">{{ proposal.status }}</span>
+      <span>{{ proposal.ai_confidence }}%</span>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div id="generationModal" class="modal hidden">
+  <div class="modal-card success-modal">
+    <button class="modal-close" data-close-modal="generationModal">×</button>
+    <div class="big-icon">✨</div>
+    <h2>Generation Successful</h2>
+    <p>AI закончил подготовку коммерческого предложения. За генерацию начислено <strong>+50 pts</strong>.</p>
+    <div class="skeleton"><span></span><span></span><span></span></div>
+    <button class="primary-cta" data-close-modal="generationModal">View Dashboard</button>
+  </div>
+</div>
+{% endblock %}

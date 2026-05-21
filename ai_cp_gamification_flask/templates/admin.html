@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard · ProposalAI{% endblock %}
+{% block content %}
+<section class="admin-hero">
+  <div class="card flat">
+    <h1>Welcome back, Admin</h1>
+    <p>Сейчас ожидают проверки: <strong>{{ state.proposals | selectattr('status', 'equalto', 'pending') | list | length }}</strong> КП.</p>
+  </div>
+  <div class="card points-issued">
+    <small>Achievement Points Issued</small>
+    <strong>2,450</strong>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-header">
+    <h2>Pending Approvals</h2>
+    <span class="muted">Last update: just now</span>
+  </div>
+
+  <div class="proposal-cards">
+    {% for proposal in state.proposals if proposal.status == 'pending' %}
+    <article class="proposal-card" data-proposal-card>
+      <div class="proposal-top">
+        <strong>CP #{{ proposal.id }}</strong>
+        <small>{{ proposal.created_at }}</small>
+      </div>
+      <div class="proposal-body">
+        <div class="avatar">{{ proposal.author_name[:1] }}</div>
+        <div>
+          <h3>{{ proposal.author_name }}</h3>
+          <p>{{ proposal.title }}</p>
+        </div>
+      </div>
+      <p class="description">{{ proposal.generated_text }}</p>
+      <div class="proposal-actions">
+        <button class="secondary-btn" data-open-review
+          data-id="{{ proposal.id }}"
+          data-title="{{ proposal.title }}"
+          data-company="{{ proposal.company }}"
+          data-author="{{ proposal.author_name }}"
+          data-confidence="{{ proposal.ai_confidence }}"
+          data-text="{{ proposal.generated_text }}">View</button>
+        <button class="primary-btn" data-open-review
+          data-id="{{ proposal.id }}"
+          data-title="{{ proposal.title }}"
+          data-company="{{ proposal.company }}"
+          data-author="{{ proposal.author_name }}"
+          data-confidence="{{ proposal.ai_confidence }}"
+          data-text="{{ proposal.generated_text }}">Approve</button>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="card">
+  <h2>Approved History</h2>
+  <div class="activity-list">
+    {% for proposal in state.proposals if proposal.status == 'approved' %}
+    <div class="activity-item">
+      <span class="activity-icon">✅</span>
+      <div>
+        <strong>CP #{{ proposal.id }} · {{ proposal.title }}</strong>
+        <p>Approved bonus: +{{ proposal.effectiveness_bonus }} pts</p>
+        <small>{{ proposal.reviewed_at }}</small>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<div id="reviewModal" class="modal hidden">
+  <div class="modal-card wide">
+    <button class="modal-close" data-close-modal="reviewModal">×</button>
+    <div class="card-header">
+      <div>
+        <h2 id="reviewTitle">Review CP</h2>
+        <p id="reviewCompany" class="muted"></p>
+      </div>
+    </div>
+
+    <div class="review-grid">
+      <div class="review-stat"><small>AI Confidence</small><strong id="reviewConfidence">94%</strong></div>
+      <div class="review-stat"><small>Author</small><strong id="reviewAuthor">A. Ivanov</strong></div>
+    </div>
+
+    <label class="field-label">Generated Content Preview</label>
+    <div id="reviewText" class="content-preview"></div>
+
+    <label class="field-label">Award effectiveness bonus?</label>
+    <div class="bonus-grid">
+      <button class="bonus-btn" data-bonus="50">Low <strong>+50</strong></button>
+      <button class="bonus-btn" data-bonus="100">Med <strong>+100</strong></button>
+      <button class="bonus-btn active" data-bonus="150">High <strong>+150</strong></button>
+      <button class="bonus-btn" data-bonus="200">Elite <strong>+200</strong></button>
+    </div>
+
+    <label class="field-label">Reason for bonus</label>
+    <textarea id="reviewComment" class="textarea" rows="3" placeholder="Например: высокая точность, ясная структура, сильное ценностное предложение"></textarea>
+
+    <div class="modal-actions">
+      <button class="danger-btn" data-reject-proposal>❌ Reject</button>
+      <button class="primary-btn" data-approve-proposal>✅ Confirm Approval</button>
+    </div>
+  </div>
+</div>
+{% endblock %}

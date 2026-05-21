@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrandProposAI RU</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%); min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 1.2rem 0; box-shadow: 0 2px 20px rgba(0,0,0,.1); }
+        .header-container { max-width: 1200px; margin: 0 auto; padding: 0 2rem; display: flex; justify-content: space-between; align-items: center; }
+        .logo-section { display: flex; align-items: center; gap: 1rem; }
+        .logo-img { width: 45px; height: 45px; object-fit: contain; border-radius: 10px; }
+        .logo-text { font-size: 1.4rem; font-weight: 700; color: #e74c3c; }
+        .logo-subtext { font-size: .85rem; color: #999; margin-left: .3rem; }
+        main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+        .container { background: rgba(255, 255, 255, 0.98); border-radius: 25px; padding: 3.5rem; max-width: 850px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.2); position: relative; z-index: 1; }
+        h1 { text-align: center; color: #1a202c; margin-bottom: .5rem; font-size: 2.2rem; }
+        .subtitle { text-align: center; color: #718096; margin-bottom: 3rem; font-size: 1.1rem; }
+        .input-group { margin-bottom: 1.8rem; }
+        label { display: block; margin-bottom: .6rem; color: #4a5568; font-weight: 600; font-size: .95rem; }
+        input[type="text"], textarea { width: 100%; padding: 1.1rem 1.3rem; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; font-family: inherit; transition: all .3s ease; background: #f7fafc; }
+        input:focus, textarea:focus { outline: none; border-color: #e74c3c; background: white; box-shadow: 0 0 0 4px rgba(231,76,60,.15); }
+        textarea { min-height: 160px; resize: vertical; line-height: 1.6; }
+        .generate-btn { width: 100%; padding: 1.3rem; background: linear-gradient(135deg, #ff6b6b 0%, #c92a2a 100%); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 700; cursor: pointer; transition: all .3s ease; box-shadow: 0 4px 15px rgba(231,76,60,.4); }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(231,76,60,.55); }
+        .generate-btn:disabled { cursor: not-allowed; transform: none; }
+        footer { background: rgba(255, 255, 255, 0.95); padding: 1.5rem 0; text-align: center; color: #718096; position: relative; z-index: 1; }
+        .watermark { position: fixed; bottom: 20px; right: 20px; width: 120px; opacity: .12; z-index: 0; pointer-events: none; user-select: none; }
+        .loading { display: none; text-align: center; margin-top: 1.5rem; padding: 1rem; background: #f7fafc; border-radius: 10px; }
+        .spinner { width: 35px; height: 35px; border: 3px solid #e2e8f0; border-top-color: #e74c3c; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto .8rem; }
+        .error { display: none; margin-top: 1rem; padding: 1rem; background: #fff5f5; color: #c53030; border-radius: 10px; border-left: 4px solid #e74c3c; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) { .container { padding: 2rem 1.5rem; } h1 { font-size: 1.7rem; } .watermark { width: 80px; bottom: 10px; right: 10px; } }
+    </style>
+</head>
+<body>
+    <img src="logo.png" alt="Watermark" class="watermark">
+    <header><div class="header-container"><div class="logo-section"><img src="logo-header.png" alt="BrandProposAI Logo" class="logo-img"><div><span class="logo-text">BrandProposAI</span><span class="logo-subtext">RU</span></div></div></div></header>
+    <main>
+        <div class="container">
+            <h1>ГЕНЕРАТОР КОММЕРЧЕСКИХ ПРЕДЛОЖЕНИЙ</h1>
+            <p class="subtitle">Создайте профессиональное КП за несколько минут</p>
+            <form id="proposalForm">
+                <div class="input-group"><label for="companyName">Название компании / получателя</label><input type="text" id="companyName" placeholder="Например: ФГБОУ ВО «Вятский государственный университет»" required></div>
+                <div class="input-group"><label for="prompt">Запрос</label><textarea id="prompt" placeholder="Опишите товары/услуги, условия, цену, сроки или задачу клиента" required></textarea></div>
+                <button type="submit" class="generate-btn">Сгенерировать коммерческое предложение</button>
+                <div class="loading" id="loading"><div class="spinner"></div><p style="color:#4a5568;">Генерация предложения...</p></div>
+                <div class="error" id="errorBox"></div>
+            </form>
+        </div>
+    </main>
+    <footer><p>&copy; 2026 GET-SAVE.COM RU</p></footer>
+    <script>
+        const form = document.getElementById('proposalForm');
+        const loading = document.getElementById('loading');
+        const btn = document.querySelector('.generate-btn');
+        const errorBox = document.getElementById('errorBox');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            errorBox.style.display = 'none';
+            loading.style.display = 'block';
+            btn.disabled = true;
+            btn.style.opacity = '0.7';
+            btn.textContent = 'Генерация...';
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        company_name: document.getElementById('companyName').value,
+                        prompt: document.getElementById('prompt').value
+                    })
+                });
+                if (!response.ok) throw new Error('Ошибка генерации на сервере');
+                const data = await response.json();
+                localStorage.setItem('lastProposalId', data.id);
+                window.location.href = data.redirect || `/2.html?id=${data.id}`;
+            } catch (err) {
+                errorBox.textContent = err.message || 'Не удалось сформировать КП';
+                errorBox.style.display = 'block';
+                loading.style.display = 'none';
+                btn.disabled = false;
+                btn.style.opacity = '1';
+                btn.textContent = 'Сгенерировать коммерческое предложение';
+            }
+        });
+    </script>
+</body>
+</html>

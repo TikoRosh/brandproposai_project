@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ProposalAI Gamification{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}">
+      <span class="brand-icon">✨</span>
+      <span>
+        <strong>ProposalAI</strong>
+        <small>Gamification</small>
+      </span>
+    </a>
+
+    <nav class="nav">
+      <a class="nav-link {{ 'active' if active == 'employee' else '' }}" href="{{ url_for('index') }}">Employee</a>
+      <a class="nav-link {{ 'active' if active == 'admin' else '' }}" href="{{ url_for('admin_page') }}">Admin</a>
+      <a class="nav-link {{ 'active' if active == 'achievements' else '' }}" href="{{ url_for('achievements_page') }}">Achievements</a>
+      <a class="nav-link {{ 'active' if active == 'leaderboard' else '' }}" href="{{ url_for('leaderboard_page') }}">Leaderboard</a>
+    </nav>
+
+    <div class="points-pill">
+      <span>🏅</span>
+      <strong id="headerPoints">{{ state.employee.total_points }}</strong>
+      <span>pts</span>
+    </div>
+  </header>
+
+  <main class="page">
+    {% block content %}{% endblock %}
+  </main>
+
+  <div id="toast" class="toast hidden"></div>
+  <div id="floatingPoints" class="floating-points hidden"></div>
+
+  <footer class="mobile-nav">
+    <a class="{{ 'active' if active == 'employee' else '' }}" href="{{ url_for('index') }}">📄<span>Employee</span></a>
+    <a class="{{ 'active' if active == 'admin' else '' }}" href="{{ url_for('admin_page') }}">✅<span>Admin</span></a>
+    <a class="{{ 'active' if active == 'achievements' else '' }}" href="{{ url_for('achievements_page') }}">🏅<span>Badges</span></a>
+    <a class="{{ 'active' if active == 'leaderboard' else '' }}" href="{{ url_for('leaderboard_page') }}">🏆<span>Rank</span></a>
+  </footer>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
